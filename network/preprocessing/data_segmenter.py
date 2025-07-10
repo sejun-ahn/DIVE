@@ -30,6 +30,10 @@ def segment_imu_data(measurements : torch.Tensor, N : float, freq : float, dt : 
     window_index_length = int(N / dt)
     discrete_step = int((1 / freq) / dt)
 
+    # check if the measurements are long enough
+    if measurements.shape[0] < window_index_length:
+        return None
+
     # unfold measurements to segment and declare requires_grad to be true
     segments = measurements.unfold(0, window_index_length, discrete_step)
 

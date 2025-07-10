@@ -170,8 +170,12 @@ def run_filter(args):
 
         # after having completed simulation, dump corresponding histories into numpy txt file
         # if anything remains in buffer, then dump it
-        outfile = osp.join(f, args.filter_output_name)
+        outfile_directory = osp.join(args.root_dir, args.filter_output_folder, args.file_target)
+        if not osp.exists(outfile_directory):
+            os.makedirs(outfile_directory)
+        outfile = osp.join(outfile_directory, args.filter_output_name)
         f_state = open(outfile, "w+")
+        print(f"Saving to file: {outfile}, quadrotor_model is None? : {quadrotor_model is None}")
         if quadrotor_model.logging_vec is not None:
             np.savetxt(
                 f_state, quadrotor_model.logging_vec.squeeze(2).numpy(), delimiter=","
@@ -179,7 +183,7 @@ def run_filter(args):
         f_state.close()
         states = np.loadtxt(outfile, delimiter=",")
         np.save(outfile + ".npy", states)
-        os.remove(outfile)
+        #os.remove(outfile)
 
 
 if __name__ == "__main__":
@@ -189,9 +193,10 @@ if __name__ == "__main__":
     parser.add_argument(
         "--root_dir",
         type=str,
-        default="/home/abajwa/mcgill/learned_quad_inertial/",
+        default="/home/ahn/Workspace/DIVE/",
     )
-    parser.add_argument("--data_dir", type=str, default="data/trajectories/dataset/")
+    parser.add_argument("--data_dir", type=str, default="DIDO/dataset/")
+    parser.add_argument("--filter_output_folder", type=str, default="filter_output/")
     parser.add_argument(
         "--file_target",
         type=str,
@@ -205,7 +210,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--model_path",
         type=str,
-        default="/home/abajwa/mcgill/DIVE/lightning_logs/learned_quad_inertial/learned_quad_inertial_odometry/lightning_logs/validation_checkpoints/final_velReg_augment_1_best_val_loss.ckpt",
+        default="/home/ahn/Workspace/DIVE/lightning_logs/validation_checkpoints/final_velReg_augment_3_5_best_val_loss-v1.ckpt",
     ) 
 
     # ------------------ target parameters -----------------
@@ -276,7 +281,7 @@ if __name__ == "__main__":
     parser.add_argument("--perturbation", type=str, default="left")
 
     # ------------------ imu-based parameters -----------------
-    parser.add_argument("--inertial_window_length", type=float, default=1., help="desired length of inertial window in seconds")
+    parser.add_argument("--inertial_window_length", type=float, default=3.5, help="desired length of inertial window in seconds")
     parser.add_argument("--nominal_imu_frequency", type=float, default=400., help="Hz")
     parser.add_argument("--update_frequency", type=float, default=10., help="Hz")
 

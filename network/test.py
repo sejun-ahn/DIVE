@@ -1,6 +1,6 @@
 # %%
 import net
-from network.pl_trainer import pl_train
+from network.pl_trainer import pl_test
 
 from logging_utils.argparse_utils import add_bool_arg
 import argparse
@@ -36,28 +36,17 @@ if __name__ == "__main__":
     add_bool_arg(parser, name="train_raw_velocity", default=True)
     parser.add_argument("--frame_target", type=str, default="current_k_gravity_aligned")
     parser.add_argument("--initial_orientation_error", type=float, default=0.0, help="rads")
-
-    # ------------------ directory parameters -----------------
-    parser.add_argument("--model_output", type=str, default="network_models/")
-    parser.add_argument("--tensorboard_dir", type=str, default="runs/")
-    parser.add_argument("--checkpoint_dir", type=str, default="checkpoints/")
-
+    
     # ------------------ file parameters -----------------
     parser.add_argument("--root_dir", type=str, default="/home/ahn/Workspace/DIVE/DIDO/dataset")
-    parser.add_argument("--training_set_loc", type=str, default="train.txt")
-    parser.add_argument("--val_set_loc", type=str, default="val.txt")
     parser.add_argument("--test_set_loc", type=str, default="test.txt")
     parser.add_argument("--ground_truth_output_name", type=str, default="data.hdf5")
     parser.add_argument("--start_idx", type=int, default=50)
 
-    # ------------------ model naming -----------------
-    parser.add_argument("--model_name", type=str, default="final_velReg_augment_3_5")
-
-    # ------------------ model visualization parameters -----------------
-    parser.add_argument("--loss_vis_thresh", type=float, default=0.5)
+    parser.add_argument("--checkpoint_path", type=str, default="/home/ahn/Workspace/DIVE/lightning_logs/validation_checkpoints/final_velReg_augment_3_5_best_val_loss-v1.ckpt")
 
     args = parser.parse_args()
 
-    pl_train(args)
+    pl_test(args)
 
 # %%

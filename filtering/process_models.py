@@ -106,11 +106,11 @@ class PreintegratedProcessModel:
             self.A_ij = torch.zeros(u.shape[0], 15, 15)
             self.A_ij[:, 9:15, 9:15] = utils.batch_eye(u.shape[0], 6, 6)
             self.A_ij[:, :9, :9] = CoupledIMUKinematicModel.ie3_adj(self.G_ij)
-            self.A_ij[:, :9, 9:15] = SE23.Adjoint(x) @ self.B_ij
+            self.A_ij[:, :9, 9:15] = SE23.adjoint(x) @ self.B_ij
 
             # complete full noise jacobian
             self.L_ij = utils.batch_eye(u.shape[0], 15, 15)
-            self.L_ij[:, :9, :9] = SE23.Adjoint(x)
+            self.L_ij[:, :9, :9] = SE23.adjoint(x)
 
             # self.P_j = self.A_ij @ self.P_i @ self.A_ij.transpose(1, 2) + self.L_ij @ self.Q_ij @ self.L_ij.transpose(1, 2)
 
@@ -172,7 +172,10 @@ class PreintegratedProcessModel:
         Q_{k-1} : torch.Tensor
             The process covariance : torch.Tensor with shape (N, 15, 15)
         """
-        return self.L_ij @ self.Q_ij @ self.L_ij.transpose(1, 2)
+        L_ij = self.L_ij.double()
+        Q_ij = self.Q_ij.double()
+
+        return L_ij @ Q_ij @ L_ij.transpose(1, 2)
 
 class CoupledIMUKinematicModel:
     """
@@ -447,7 +450,7 @@ class CoupledIMUKinematicModel:
             r0 = torch.cat(
                 (
                     self.ie3_adj((self.generate_g(u = u, dt = dt, g_a = self.g_a))),
-                    -SE23.Adjoint(x) @ self.input_jacobian_pose(u, dt),
+                    -SE23.adjoint(x) @ self.input_jacobian_pose(u, dt),
                 ),
                 dim=2,
             )
@@ -487,7 +490,7 @@ class CoupledIMUKinematicModel:
             )
         else:
             r0 = torch.cat(
-                (SE23.Adjoint(x) @ self.input_jacobian_pose(u, dt), torch.zeros(u.shape[0], 9, 6)), dim=2
+                (SE23.adjoint(x) @ self.input_jacobian_pose(u, dt), torch.zeros(u.shape[0], 9, 6)), dim=2
             )
         r1 = torch.cat(
             (torch.zeros(u.shape[0], 6, 6), dt * utils.batch_eye(u.shape[0], 6, 6)),

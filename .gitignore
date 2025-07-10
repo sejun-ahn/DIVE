@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+DIDO/
+lightning_logs/
+filter_output/

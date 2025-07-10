@@ -99,7 +99,7 @@ def load_cloud_dataset(args):
     quat_interp = torch.Tensor(quat_interp)
     quat_interp /= torch.linalg.norm(quat_interp, dim=1)[:, None]
 
-    gt_C = SO3.from_quat(torch.Tensor(quat_interp), ordering="xyzw")
+    gt_C = SO3.from_quat(torch.Tensor(quat_interp), order="xyzw")
 
     # generate relative timestamps in seconds
     ts = imu_ts[valid_imu_ts_indicies] - imu_ts[valid_imu_ts_indicies][0]
@@ -254,7 +254,7 @@ def load_euroc(f, args):
     quat_interp = torch.Tensor(quat_interp)
     quat_interp /= torch.linalg.norm(quat_interp, dim=1)[:, None]
 
-    C_a_bi = SO3.from_quat(torch.Tensor(quat_interp), ordering="wxyz")
+    C_a_bi = SO3.from_quat(torch.Tensor(quat_interp), order="wxyz")
 
     # move ground-truth values to x-forward frame
     C_a_bg = C_a_bi @ C_bg_bi.transpose(1, 2)
@@ -398,7 +398,7 @@ def load_dido_trajectory(f, args):
 
     # otherwise, if no groundtruth or augmentation specified, simply return raw IMU measurements from trajectory sample
     else:
-        gt_C = SO3.from_quat(gt_dict["gt_q"], ordering="wxyz")
+        gt_C = SO3.from_quat(gt_dict["gt_q"], order="wxyz")
         trajectory_dict = {
             "C": gt_C,
             "v": gt_dict["gt_v"],
@@ -691,7 +691,7 @@ def load_blackbird(f, args):
     quat_interp /= torch.linalg.norm(quat_interp, dim=1)[:, None]
 
     # generate valid interpolated rotations from quaternions
-    gt_C_ab = SO3.from_quat(quat_interp, ordering="wxyz")
+    gt_C_ab = SO3.from_quat(quat_interp, order="wxyz")
     gt_C_ae_be = C_en @ gt_C_ab @ C_en.transpose(1, 2)
 
     r = torch.Tensor(pos_interp).view(-1, 3, 1)
@@ -851,7 +851,7 @@ class GenericEstimationDataset31(Dataset):
     def __getitem__(self, idx):
         f = osp.join(
             self.args.root_dir,
-            self.args.data_dir,
+            self.args.filter_output_folder, #self.args.data_dir,
             self.filenames[idx],
             self.args.filter_output_name,
         )

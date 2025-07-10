@@ -165,7 +165,7 @@ def load_data_and_encoding(args, f, N, freq, dt):
     traj_dict = hdf5_loader.retrieve_trajectory(f, start_idx=args.start_idx)
 
     # convert quaternions to rotation vector
-    gt_phi = SO3.Log(SO3.from_quat(traj_dict["gt_q"], ordering="wxyz")).squeeze(2)
+    gt_phi = SO3.Log(SO3.from_quat(traj_dict["gt_q"], order="wxyz")).squeeze(2)
 
     # if retrieving ground truth data, generate gt body frame orientation and acceleration
     if args.self_augment:
@@ -225,8 +225,11 @@ class VelocityUnitVectorDataset(Dataset):
         # self.encoding = torch.empty((0, 3))
         # self.ts = torch.empty((0, 1, int(N / dt)))
         for f in self.filenames:
-            data_loc = osp.join(f, args.ground_truth_output_name)
+            data_loc = osp.join(args.root_dir, f, args.ground_truth_output_name)
             features = load_data_and_encoding(args, data_loc, N, freq, dt)
+            if features is None or features.shape[0] == 0:
+                print(f"Skipping {f} due to no valid segments.")
+                continue
             self.features = torch.cat((self.features, features), dim=0)
             # self.encoding = torch.cat((self.encoding, encoding), dim=0)
             # self.ts = torch.cat((self.ts, ts.unsqueeze(1)), dim=0)

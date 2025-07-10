@@ -124,3 +124,30 @@ def pl_train(args):
     )
 
     # trainer.test(model=regressor, dataloaders=test_dataloader)
+
+def pl_test(args):
+    test_set_loc = osp.join(args.root_dir, args.test_set_loc)
+    test_trajectories = VelocityUnitVectorDataset(
+        test_set_loc,
+        args.inertial_window_length,
+        args.sampling_frequency,
+        1 / args.nominal_imu_frequency,
+        args,
+    )
+
+    test_dataloader = DataLoader(
+        test_trajectories,
+        batch_size=args.batch_size,
+        num_workers=12,
+        shuffle=False
+    )
+
+    if (args.train_raw_velocity):
+        regressor = VelocityVectorRegressor.load_from_checkpoint(args.checkpoint_path)
+    else:
+        regressor = VelocityUnitVectorRegressor.load_from_checkpoint(args.checkpoint_path)
+    
+    regressor.eval()
+
+    trainer = pl.Trainer(accelerator="gpu" if torch.cuda.is_available() else "cpu")
+    trainer.test(model=regressor, dataloaders=test_dataloader)

@@ -77,7 +77,7 @@ def plot_network_outputs(args, states : dict, gt : dict):
     vu_zw_g = (C_ag.transpose(1, 2) @ gt_v.unsqueeze(2)).view(-1, 3) / torch.norm(gt_v, dim=1).reshape(-1, 1)
 
     # calculate geodesic distance
-    geodesic_distance = (torch.arctan2(torch.norm(torch.cross(meas, vu_zw_g), dim=1), torch.bmm(vu_zw_g.view(-1, 1, 3), meas.view(-1, 3, 1)).view(-1)))
+    geodesic_distance = (torch.arctan2(torch.norm(torch.linalg.cross(meas, vu_zw_g), dim=1), torch.bmm(vu_zw_g.view(-1, 1, 3), meas.view(-1, 3, 1)).view(-1)))
 
     mse_loss = torch.mean((meas - vu_zw_g).pow(2), dim=1)
     vel_norm_masked = torch.norm(gt_v, dim=1)
@@ -310,20 +310,21 @@ if __name__ == "__main__":
     parser.add_argument(
         "--root_dir",
         type=str,
-        default="/home/angad/learned_quad_inertial/learned_quad_inertial_odometry/",
+        default="/home/ahn/Workspace/DIVE/",
     )
-    parser.add_argument("--data_dir", type=str, default="data/trajectories/dataset/")
+    parser.add_argument("--data_dir", type=str, default="DIDO/dataset/")
     parser.add_argument(
         "--data_list",
         type=str,
-        default="validation_list_short.txt",
+        default="val.txt",
     )
-    parser.add_argument("--filter_output_name", type=str, default="velocity_regressor_left_1s.txt.npy")
+    parser.add_argument("--filter_output_folder", type=str, default="filter_output/")
+    parser.add_argument("--filter_output_name", type=str, default="validation_test_nov18.txt.npy")
     parser.add_argument("--ground_truth_output_name", type=str, default="data.hdf5")
     parser.add_argument(
         "--file_target",
         type=str,
-        default="circle_a_2.2_v_3.5_r_1.5_yaw_2022-02-21-23-18-26/",
+        default="v_1.9_a_4_s_1_yaw_0.05_n_3_2021-12-29-22-19-25(0)/",
     )
 
     """

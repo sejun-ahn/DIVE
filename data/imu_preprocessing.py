@@ -69,7 +69,7 @@ def corrupt_measurement_history(imuTraj : CorruptIMUTrajectory, gt_gyro : torch.
 def rotate_gt_acc(gt_acc_a : torch.Tensor, gt_q : torch.Tensor):
 
     # complete in-place conversion
-    gt_c = SO3.from_quat((gt_q), ordering="wxyz")
+    gt_c = SO3.from_quat((gt_q), order="wxyz")
 
     gt_acc_b = gt_c.transpose(1, 2) @ ((gt_acc_a).reshape(-1, 3) - torch.tensor([0, 0, -scipy.constants.g])).reshape(-1, 3, 1)
 
